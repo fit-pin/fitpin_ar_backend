@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Fast API 서버 실행",
+            "type": "debugpy",
+            "cwd": "${workspaceFolder}",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": ["src.Server:server", "--reload"]
+        },
+        {
             "name": "Python 디버거: 현재 파일",
             "type": "debugpy",
             "request": "launch",
