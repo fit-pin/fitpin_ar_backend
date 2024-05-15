@@ -1,29 +1,132 @@
 # 신체 측정 API
-from fastapi import APIRouter, UploadFile
+import os
+from typing import Literal
+from fastapi import APIRouter, Form, UploadFile, HTTPException
+from pydantic import BaseModel
 from fastapi.responses import JSONResponse
+from fastapi import Request
 import uuid
+import cv2 as cv
+from ultralytics import YOLO
+from ultralytics.engine.results import Results
+from src.Constant import BODY_PARTS, RES_DIR
+from src.Utills import verifyValue, distance, findRealSize, reSizeofWidth
+import json
 
 router = APIRouter()
 
-
+# 신체 측정 api
 @router.post("/")
-async def bodyMEAApi(anaFile: UploadFile):
+async def bodyMEAApi(anaFile: UploadFile, req: Request, data: str = Form()):
+    try:
+        personKey = float(json.loads(data)["personKey"])
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="type_err: {personKey: int | float}")
+    
     # 파일명 에서 확장자 구하기
     exte = anaFile.filename.split('.')[-1]
 
     # uuid 로 랜덤 파일명 부여
     fileName = f"{uuid.uuid4()}.{exte}"
 
+    with open(f"{RES_DIR}/{fileName}", "wb") as f:
+        f.write(anaFile.file.read())
+
+    work = WorkBodyMEA(personKey, cv.imread(f"{RES_DIR}/{fileName}"))
+
+    try:
+        humanMEA = work.getHumanMEA()
+    except Exception as e:
+        print(f"애러 {req.client.host}: {e}")
+        os.remove(f"{RES_DIR}/{fileName}")
+        raise HTTPException(status_code=500, detail=e)
+
+    print({
+        "ip": req.client.host,
+        "fileName": fileName,
+        "result": humanMEA
+    })
+
     res = {
         "fileName": fileName,
-        "result": {
-            "top": 500,
-            "leg": 500
-        }
+        "result": humanMEA
     }
 
-    with open(f"src/res/{fileName}", "wb") as f:
-        f.write(anaFile.file.read())
-        
-    
     return JSONResponse(content=res, media_type="application/json")
+
+
+# 신체 파트 파싱 상수 정의
+PARES_TOP = {"왼쪽 팔": ["왼쪽 어깨", "왼쪽 팔꿈치", "왼쪽 손목"], "오른쪽 팔": ["오른쪽 어깨", "오른쪽 팔꿈치", "오른쪽 손목"],
+             "어께너비": ["왼쪽 어깨", "오른쪽 어깨"], "상체너비": ["왼쪽 어깨", "왼쪽 골반"]}
+PARES_BOTTOM = {"왼쪽 다리": ["왼쪽 골반", "왼쪽 무릎", "왼쪽 발"], "오른쪽 다리": ["오른쪽 골반", "오른쪽 무릎", "오른쪽 발"]}
+
+class WorkBodyMEA:
+    model = YOLO("src/model/yolov8n-pose.pt")
+
+    def __init__(self, personKey: int, img: cv.typing.MatLike):
+        reimg = reSizeofWidth(img, 800)
+        self.personKey = personKey
+        self.img = reimg
+
+    def getHumanMEA(self) -> dict[Literal["armSize", "shoulderSize", "bodySize", "legSize"], float]:
+        """입력된 정보로 신체 측정
+
+        Returns:
+            dict: [armSize]: 팔 길이 [shoulderSize]: 어께 너비 [bodySize]: 상체 길이 [legSize]: 다리 길이
+            
+        Raise:
+            not_detection: 사람 감지 안됨
+            many_detection: 여러 사람 감지됨
+            keypoint_err: 키포인트 검출실패
+        """
+        
+        result: Results = self.model.predict(self.img)[0]
+
+        # 사람 감지 안되면 예외
+        if (not len(result.boxes.cls)):
+            raise Exception("not_detection")
+        # 두명 이상 감지되면 예외
+        elif (len(result.keypoints.xy) > 1):
+            raise Exception("many_detection")
+
+        # 사람 키포인트
+        personPose = result.keypoints.xy[0]
+        # 사람 영역
+        personPx = float(result.boxes[0].xywh[0][3])
+
+        # 사람 키포인트 유효성 검사
+        def __findPoints(key: str):
+            point = personPose[BODY_PARTS[key]]
+            if (not verifyValue(point)):
+                raise Exception("keypoint_err")
+            return point
+
+        shoulder = list(map(__findPoints,  PARES_TOP["어께너비"]))
+        body = list(map(__findPoints,  PARES_TOP["상체너비"]))
+
+        rightArm = list(map(__findPoints,  PARES_TOP["오른쪽 팔"]))
+        leftArm = list(map(__findPoints,  PARES_TOP["왼쪽 팔"]))
+
+        rightLeg = list(map(__findPoints,  PARES_BOTTOM["오른쪽 다리"]))
+        leftLeg = list(map(__findPoints,  PARES_BOTTOM["왼쪽 다리"]))
+
+        shoulderSize = findRealSize(self.personKey, personPx, distance(shoulder))
+        shoulderSize = round(shoulderSize, 2)
+
+        bodySize = findRealSize(self.personKey, personPx, distance(body))
+        bodySize = round(bodySize, 2)
+
+        armSize = max([findRealSize(self.personKey, personPx, distance(rightArm)),
+                      findRealSize(self.personKey, personPx, distance(leftArm))])
+        armSize = round(armSize, 2)
+
+        legSize = max([findRealSize(self.personKey, personPx, distance(rightLeg)),
+                      findRealSize(self.personKey, personPx, distance(leftLeg))])
+        legSize = round(legSize, 2)
+
+        return {
+            "armSize": armSize,
+            "shoulderSize": shoulderSize,
+            "bodySize": bodySize,
+            "legSize": legSize
+        }
