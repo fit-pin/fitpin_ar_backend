@@ -34,7 +34,7 @@ async def bodyMEAApi(anaFile: UploadFile, req: Request, personKey: float = Form(
     except Exception as e:
         print(f"애러 {req.client.host}: {e}")
         os.remove(f"{RES_DIR}/{fileName}")
-        raise HTTPException(status_code=500, detail=e)
+        raise HTTPException(status_code=500, detail=f"{e}")
 
     print({
         "ip": req.client.host,
