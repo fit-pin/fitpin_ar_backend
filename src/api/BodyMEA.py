@@ -17,12 +17,7 @@ router = APIRouter()
 
 # 신체 측정 api
 @router.post("/")
-async def bodyMEAApi(anaFile: UploadFile, req: Request, data: str = Form()):
-    try:
-        personKey = float(json.loads(data)["personKey"])
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="type_err: {personKey: int | float}")
-    
+async def bodyMEAApi(anaFile: UploadFile, req: Request, personKey: float = Form()):    
     # 파일명 에서 확장자 구하기
     exte = anaFile.filename.split('.')[-1]
 
