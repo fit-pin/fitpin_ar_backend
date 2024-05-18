@@ -76,18 +76,24 @@ class WorkBodyMEA:
         """
         
         result: Results = self.model.predict(self.img)[0]
+        # 사람 감지 인덱스
+        detcIndex = -1 
+
+        for i in range(len(result.boxes.cls)):
+            print(result.boxes.cls)
+            if result.boxes.cls[i] == 0:
+                if detcIndex != -1:
+                    # 두명 이상 감지되면 예외
+                    raise Exception("many_detection")
+                detcIndex = i
 
         # 사람 감지 안되면 예외
-        if (not len(result.boxes.cls)):
-            raise Exception("not_detection")
-        # 두명 이상 감지되면 예외
-        elif (len(result.keypoints.xy) > 1):
-            raise Exception("many_detection")
+        if detcIndex == -1: raise Exception("not_detection")
 
         # 사람 키포인트
-        personPose = result.keypoints.xy[0]
+        personPose = result.keypoints.xy[detcIndex]
         # 사람 영역
-        personPx = float(result.boxes[0].xywh[0][3])
+        personPx = float(result.boxes[detcIndex].xywh[0][3])
 
         # 사람 키포인트 유효성 검사
         def __findPoints(key: str):
