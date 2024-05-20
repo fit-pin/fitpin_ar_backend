@@ -11,13 +11,12 @@ from ultralytics import YOLO
 from ultralytics.engine.results import Results
 from src.Constant import BODY_PARTS, RES_DIR
 from src.Utills import verifyValue, distance, findRealSize, reSizeofWidth
-import json
 
 router = APIRouter()
 
 # 신체 측정 api
 @router.post("/")
-async def bodyMEAApi(anaFile: UploadFile, req: Request, personKey: float = Form()):    
+async def bodyMEAApi(anaFile: UploadFile, req: Request, personKey: float = Form()):
     # 파일명 에서 확장자 구하기
     exte = anaFile.filename.split('.')[-1]
 
@@ -27,9 +26,8 @@ async def bodyMEAApi(anaFile: UploadFile, req: Request, personKey: float = Form(
     with open(f"{RES_DIR}/{fileName}", "wb") as f:
         f.write(anaFile.file.read())
 
-    work = WorkBodyMEA(personKey, cv.imread(f"{RES_DIR}/{fileName}"))
-
     try:
+        work = WorkBodyMEA(personKey, f"{RES_DIR}/{fileName}")
         humanMEA = work.getHumanMEA()
     except Exception as e:
         print(f"애러 {req.client.host}: {e}")
@@ -58,8 +56,13 @@ PARES_BOTTOM = {"왼쪽 다리": ["왼쪽 골반", "왼쪽 무릎", "왼쪽 발"
 class WorkBodyMEA:
     model = YOLO("src/model/yolov8n-pose.pt")
 
-    def __init__(self, personKey: int, img: cv.typing.MatLike):
-        reimg = reSizeofWidth(img, 800)
+    def __init__(self, personKey: int, imgDir: str):
+        try: 
+            img =cv.imread(imgDir)
+            reimg = reSizeofWidth(img, 800)
+        except:
+            raise Exception("not_image")
+
         self.personKey = personKey
         self.img = reimg
 
