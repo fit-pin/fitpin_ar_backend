@@ -3,6 +3,7 @@ import math
 import cv2 as cv
 from torch import Tensor
 
+
 def findRealSize(refSize: float, refPx: float, findPx: float):
     """기준 사물 높이 가지고 다른 사이즈 예측
 
@@ -18,6 +19,7 @@ def findRealSize(refSize: float, refPx: float, findPx: float):
     cm_per_px = refSize / refPx
     return findPx * cm_per_px
 
+
 def distance(points: list[tuple[float]]) -> float:
     """여러 점들 사이 길이 구하는 함수
 
@@ -31,9 +33,10 @@ def distance(points: list[tuple[float]]) -> float:
     distance = 0
     for i in range(len(points) - 1):
         x1, y1 = points[i]
-        x2, y2 = points[i+1]
+        x2, y2 = points[i + 1]
         distance += math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
     return distance
+
 
 def reSizeofWidth(img: cv.typing.MatLike, width: int):
     """width 값 기준으로 사진을 줄임 height 값은 비율에따라 자동 조정
@@ -50,6 +53,7 @@ def reSizeofWidth(img: cv.typing.MatLike, width: int):
     reHeight = int(height * width / width)
     return cv.resize(img, (width, reHeight), interpolation=cv.INTER_AREA)
 
+
 def reSizeofHight(img: cv.typing.MatLike, hight: int):
     """hight 값 기준으로 사진을 줄임 width 값은 비율에따라 자동 조정
 
@@ -65,6 +69,7 @@ def reSizeofHight(img: cv.typing.MatLike, hight: int):
     reWidth = int(height * width / height)
     return cv.resize(img, (reWidth, height), interpolation=cv.INTER_AREA)
 
+
 def verifyValue(values: list[float | Tensor]):
     """리스트 값 유효성 확인
 
@@ -74,7 +79,7 @@ def verifyValue(values: list[float | Tensor]):
     Returns:
         bool: 유효성 여부
     """
-    
+
     for value in values:
         if value == 0:
             return False

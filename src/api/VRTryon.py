@@ -3,8 +3,7 @@ from fastapi import APIRouter
 
 router = APIRouter()
 
+
 @router.get("/")
 def vrTryonApi():
-    return {
-        "res": "vrTryon"
-    }
+    return {"res": "vrTryon"}
