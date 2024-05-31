@@ -4,5 +4,6 @@
         "ms-python.black-formatter",
         "ms-python.isort",
         "ms-toolsai.jupyter",
+        "github.vscode-github-actions",
     ]
 }
