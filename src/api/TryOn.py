@@ -20,6 +20,7 @@ router = APIRouter()
 def tryOn(
     clothesImg: UploadFile,
     req: Request,
+    clothesType: str = Form(),
     fileName: str = Form(),
     personKey: float = Form(),
     clothesLenth: int = Form()
@@ -91,7 +92,6 @@ class WorkTryOn:
         Raises:
             not_detection: 사람 감지 안됨
             many_detection: 여러 사람 감지됨
-            keypoint_err: 키포인트 검출실패
 
         Returns:
             MatLike: 합성된 이미지

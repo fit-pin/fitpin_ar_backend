@@ -5,7 +5,7 @@ import numpy as np
 from rembg import remove
 
 router = APIRouter()
-from fastapi import APIRouter, Form, HTTPException, Request, UploadFile
+from fastapi import APIRouter, HTTPException, Request, UploadFile
 from fastapi.responses import Response
 
 @router.post("/")
