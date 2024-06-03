@@ -19,5 +19,5 @@ BODY_PARTS = {
 }
 """신체 파트 구분"""
 
-RES_DIR = "src/res"
+RES_DIR = "src/res/"
 """ 리소스 폴더 경로 """

@@ -1,8 +1,8 @@
 # 신체 측정 API
 import os
+from os import path
 from typing import Literal
 from fastapi import APIRouter, Form, UploadFile, HTTPException
-from pydantic import BaseModel
 from fastapi.responses import JSONResponse
 from fastapi import Request
 import uuid
@@ -24,7 +24,7 @@ async def bodyMEAApi(anaFile: UploadFile, req: Request, personKey: float = Form(
     # uuid 로 랜덤 파일명 부여
     fileName = f"{uuid.uuid4()}.{exte}"
 
-    with open(f"{RES_DIR}/{fileName}", "wb") as f:
+    with open(path.join(RES_DIR, fileName),"wb") as f:
         f.write(anaFile.file.read())
 
     try:
