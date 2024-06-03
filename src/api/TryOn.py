@@ -1,4 +1,5 @@
 # 의류 합성 이미지 생성 API
+from typing import Literal
 from torch import Tensor
 from ultralytics.engine.results import Results
 from fastapi import APIRouter, Form, HTTPException, Request, UploadFile
@@ -20,10 +21,10 @@ router = APIRouter()
 def tryOn(
     clothesImg: UploadFile,
     req: Request,
-    clothesType: str = Form(),
+    clothesType: Literal["TOP", "BOTTOM"] = Form(),
     fileName: str = Form(),
     personKey: float = Form(),
-    clothesLenth: int = Form()
+    clothesLenth: float = Form(),
 ):
     bodyPath = path.join(RES_DIR, fileName)
     try:
@@ -35,7 +36,7 @@ def tryOn(
 
         personImg = cv.imread(bodyPath)
 
-        workTryOn = WorkTryOn(personImg, clothes_decode)
+        workTryOn = WorkTryOn(personImg, clothes_decode, clothesType)
         resultsImg = workTryOn.getTryOnImg()
     except Exception as e:
         print(f"애러 {req.client.host}: {e}")
@@ -47,17 +48,29 @@ def tryOn(
 class WorkTryOn:
     model = YOLO("src/model/yolov8n-pose.pt")
 
-    def __init__(self, personImg: cv.typing.MatLike, clothesImg: cv.typing.MatLike):
+    def __init__(
+        self, personImg: cv.typing.MatLike, clothesImg: cv.typing.MatLike, clothesType: Literal["TOP", "BOTTOM"]
+    ):
         """TryOn 작업 생성하기
 
         Args:
             personImg (cv.typing.MatLike): 채형 이미지
             clothesImg (cv.typing.MatLike): 의류 이미지 (누끼 따진)
+            clothesType (Literal["TOP", "BOTTOM"]): 상의 하의 구분
         """
         self.personImg = personImg
         self.clothesImg = clothesImg
+        self.clothesType: Literal["TOP", "BOTTOM"] = clothesType
 
-    def __overlayClothes(self, personPose: Tensor) -> cv.typing.MatLike:
+    def __overlayClothesTop(self, personPose: Tensor) -> cv.typing.MatLike:
+        """상의 이미지 합성
+
+        Args:
+            personPose (Tensor): 키포인트 Tensor 배열
+
+        Returns:
+            cv.typing.MatLike: 합성된 이미지
+        """
         # 의류 이미지 가로 실제 보정 배율
         WIDTH_CORR = 2.1
 
@@ -86,6 +99,44 @@ class WorkTryOn:
         # 체형 이미지와 보정된 의류 이미지 합성
         return cvzone.overlayPNG(personimg_bgra, resize_clothes, (int(x * X_POINT_CORR), int(y * Y_POINT_CORR)))
 
+    def __overlayClothesBottom(self, personPose: Tensor) -> cv.typing.MatLike:
+        """하의 이미지 합성
+
+        Args:
+            personPose (Tensor): 키포인트 Tensor 배열
+
+        Returns:
+            cv.typing.MatLike: 합성된 이미지
+        """
+
+        # 의류 이미지 가로 실제 보정 배율
+        WIDTH_CORR = 2.2
+        
+        # X 좌표 보정
+        X_POINT_CORR = 0.84
+
+        # Y 좌표 보정
+        Y_POINT_CORR = 0.97
+
+        point1 = personPose[BODY_PARTS["왼쪽 골반"]]
+        point2 = personPose[BODY_PARTS["오른쪽 골반"]]
+
+        # 골반과 골반 사이 길이로 보정하기
+        findDistance = distance([point1, point2]) * WIDTH_CORR
+        
+        # 이미지 크기 보정하기
+        resize_clothes = reSizeofWidth(self.clothesImg, int(findDistance))
+        
+
+        # 이미지가 합성될 위치 지정
+        x, y = point1
+
+        # 사람 이미지 투명도 값 추가
+        personimg_bgra = cv.cvtColor(self.personImg, cv.COLOR_BGR2BGRA)
+
+        # 체형 이미지와 보정된 의류 이미지 합성
+        return cvzone.overlayPNG(personimg_bgra, resize_clothes, (int(x * X_POINT_CORR), int(y * Y_POINT_CORR)))
+
     def getTryOnImg(self) -> cv.typing.MatLike:
         """채형사진과 의류 사진이 합생된 이미자를 리턴 합니다
 
@@ -101,7 +152,6 @@ class WorkTryOn:
         detcIndex = -1
 
         for i in range(len(result.boxes.cls)):
-            print(result.boxes.cls)
             if result.boxes.cls[i] == 0:
                 if detcIndex != -1:
                     # 두명 이상 감지되면 예외
@@ -115,5 +165,8 @@ class WorkTryOn:
         # 사람 키포인트
         personPose = result.keypoints.xy[detcIndex]
 
-        # 신체 이미지와 의류 이미지 합성
-        return self.__overlayClothes(personPose)
+        # 신체 이미지와 상의 인지 하의 인지 판단해서 합성 하고 리턴
+        if self.clothesType == "TOP":
+            return self.__overlayClothesTop(personPose)
+        else:
+            return self.__overlayClothesBottom(personPose)

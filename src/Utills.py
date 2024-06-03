@@ -38,36 +38,36 @@ def distance(points: list[tuple[float]]) -> float:
     return distance
 
 
-def reSizeofWidth(img: cv.typing.MatLike, width: int):
+def reSizeofWidth(img: cv.typing.MatLike, reWidth: int):
     """width 값 기준으로 사진을 줄임 height 값은 비율에따라 자동 조정
 
     Args:
         img (cv.typing.MatLike): openCV 이미지 파일
-        width (int): 줄이는 width값
+        reWidth (int): 줄이는 width값
 
     Returns:
         cv.typing.MatLike: 완료된 openCV 이미지 파일
     """
 
     height, width = img.shape[:2]
-    reHeight = int(height * width / width)
-    return cv.resize(img, (width, reHeight), interpolation=cv.INTER_AREA)
+    reHeight = int(height * reWidth / width)
+    return cv.resize(img, (reWidth, reHeight), interpolation=cv.INTER_AREA)
 
 
-def reSizeofHight(img: cv.typing.MatLike, hight: int):
+def reSizeofHight(img: cv.typing.MatLike, reHight: int):
     """hight 값 기준으로 사진을 줄임 width 값은 비율에따라 자동 조정
 
     Args:
         img (cv.typing.MatLike): openCV 이미지 파일
-        hight (int): 줄이는 hight값
+        reHight (int): 줄이는 hight값
 
     Returns:
         cv.typing.MatLike: 완료된 openCV 이미지 파일
     """
 
     height, width = img.shape[:2]
-    reWidth = int(height * width / height)
-    return cv.resize(img, (reWidth, height), interpolation=cv.INTER_AREA)
+    reWidth = int(width * reHight / height)
+    return cv.resize(img, (reWidth, reHight), interpolation=cv.INTER_AREA)
 
 
 def verifyValue(values: list[float | Tensor]):

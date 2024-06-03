@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from fastapi import Request
 import uuid
 import cv2 as cv
+import numpy as np
 from ultralytics import YOLO
 from ultralytics.engine.results import Results
 from src.Constant import BODY_PARTS, RES_DIR
@@ -17,18 +18,26 @@ router = APIRouter()
 
 # 신체 측정 api
 @router.post("/")
-async def bodyMEAApi(anaFile: UploadFile, req: Request, personKey: float = Form()):
-    # 파일명 에서 확장자 구하기
-    exte = anaFile.filename.split(".")[-1]
-
-    # uuid 로 랜덤 파일명 부여
-    fileName = f"{uuid.uuid4()}.{exte}"
-
-    with open(path.join(RES_DIR, fileName),"wb") as f:
-        f.write(anaFile.file.read())
-
+async def bodyMEAApi(anaFile: UploadFile, req: Request, personKey: float = Form()):   
     try:
-        work = WorkBodyMEA(personKey, f"{RES_DIR}/{fileName}")
+        # 이미지인지 예외처리
+        try:
+            person_encoded = np.fromfile(anaFile.file, dtype=np.uint8)
+            person_decode = cv.imdecode(person_encoded, cv.COLOR_BGR2RGB)
+        except Exception as e:
+            raise Exception("not_image")
+        
+        # 파일명 에서 확장자 구하기
+        exte = anaFile.filename.split(".")[-1]
+        
+        # uuid 로 랜덤 파일명 부여
+        fileName = f"{uuid.uuid4()}.{exte}"
+        
+        # width 700 픽셀로 조정
+        personImg = reSizeofWidth(person_decode, 700)
+        cv.imwrite(path.join(RES_DIR, fileName), personImg)
+
+        work = WorkBodyMEA(personKey, personImg)
         humanMEA = work.getHumanMEA()
     except Exception as e:
         print(f"애러 {req.client.host}: {e}")
@@ -44,6 +53,7 @@ async def bodyMEAApi(anaFile: UploadFile, req: Request, personKey: float = Form(
 
 # 신체 파트 파싱 상수 정의
 PARES_TOP = {
+    
     "왼쪽 팔": ["왼쪽 어깨", "왼쪽 팔꿈치", "왼쪽 손목"],
     "오른쪽 팔": ["오른쪽 어깨", "오른쪽 팔꿈치", "오른쪽 손목"],
     "어께너비": ["왼쪽 어깨", "오른쪽 어깨"],
@@ -58,15 +68,9 @@ PARES_BOTTOM = {
 class WorkBodyMEA:
     model = YOLO("src/model/yolov8n-pose.pt")
 
-    def __init__(self, personKey: int, imgDir: str):
-        try:
-            img = cv.imread(imgDir)
-            reimg = reSizeofWidth(img, 800)
-        except:
-            raise Exception("not_image")
-
+    def __init__(self, personKey: int, img: cv.typing.MatLike):
         self.personKey = personKey
-        self.img = reimg
+        self.img = img
 
     def getHumanMEA(self) -> dict[Literal["armSize", "shoulderSize", "bodySize", "legSize"], float]:
         """입력된 정보로 신체 측정
@@ -85,7 +89,6 @@ class WorkBodyMEA:
         detcIndex = -1
 
         for i in range(len(result.boxes.cls)):
-            print(result.boxes.cls)
             if result.boxes.cls[i] == 0:
                 if detcIndex != -1:
                     # 두명 이상 감지되면 예외
