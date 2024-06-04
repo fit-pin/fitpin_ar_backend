@@ -18,21 +18,21 @@ router = APIRouter()
 
 # 신체 측정 api
 @router.post("/")
-async def bodyMEAApi(anaFile: UploadFile, req: Request, personKey: float = Form()):   
+async def bodyMEAApi(anaFile: UploadFile, req: Request, personKey: float = Form()):
+    # 이미지인지 예외처리
     try:
-        # 이미지인지 예외처리
-        try:
-            person_encoded = np.fromfile(anaFile.file, dtype=np.uint8)
-            person_decode = cv.imdecode(person_encoded, cv.COLOR_BGR2RGB)
-        except Exception as e:
-            raise Exception("not_image")
-        
+        person_encoded = np.fromfile(anaFile.file, dtype=np.uint8)
+        person_decode = cv.imdecode(person_encoded, cv.COLOR_BGR2RGB)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="not_image")
+
+    try:
         # 파일명 에서 확장자 구하기
         exte = anaFile.filename.split(".")[-1]
-        
+
         # uuid 로 랜덤 파일명 부여
         fileName = f"{uuid.uuid4()}.{exte}"
-        
+
         # width 700 픽셀로 조정
         personImg = reSizeofWidth(person_decode, 700)
         cv.imwrite(path.join(RES_DIR, fileName), personImg)
@@ -53,7 +53,6 @@ async def bodyMEAApi(anaFile: UploadFile, req: Request, personKey: float = Form(
 
 # 신체 파트 파싱 상수 정의
 PARES_TOP = {
-    
     "왼쪽 팔": ["왼쪽 어깨", "왼쪽 팔꿈치", "왼쪽 손목"],
     "오른쪽 팔": ["오른쪽 어깨", "오른쪽 팔꿈치", "오른쪽 손목"],
     "어께너비": ["왼쪽 어깨", "오른쪽 어깨"],
