@@ -26,13 +26,13 @@ async def bodyMEAApi(anaFile: UploadFile, req: Request, personKey: float = Form(
     except Exception as e:
         raise HTTPException(status_code=500, detail="not_image")
 
+    # 파일명 에서 확장자 구하기
+    exte = anaFile.filename.split(".")[-1]
+
+    # uuid 로 랜덤 파일명 부여
+    fileName = f"{uuid.uuid4()}.{exte}"
+
     try:
-        # 파일명 에서 확장자 구하기
-        exte = anaFile.filename.split(".")[-1]
-
-        # uuid 로 랜덤 파일명 부여
-        fileName = f"{uuid.uuid4()}.{exte}"
-
         # width 700 픽셀로 조정
         personImg = reSizeofWidth(person_decode, 700)
         cv.imwrite(path.join(RES_DIR, fileName), personImg)
@@ -41,6 +41,7 @@ async def bodyMEAApi(anaFile: UploadFile, req: Request, personKey: float = Form(
         humanMEA = work.getHumanMEA()
     except Exception as e:
         print(f"애러 {req.client.host}: {e}")
+        os.remove(path.join(RES_DIR, fileName))
         raise HTTPException(status_code=500, detail=f"{e}")
 
     print({"ip": req.client.host, "fileName": fileName, "result": humanMEA})
