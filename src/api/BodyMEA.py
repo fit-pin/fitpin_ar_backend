@@ -41,7 +41,8 @@ async def bodyMEAApi(anaFile: UploadFile, req: Request, personKey: float = Form(
         humanMEA = work.getHumanMEA()
     except Exception as e:
         print(f"애러 {req.client.host}: {e}")
-        os.remove(path.join(RES_DIR, fileName))
+        if path.exists(path.join(RES_DIR, fileName)):
+            os.remove(path.join(RES_DIR, fileName))
         raise HTTPException(status_code=500, detail=f"{e}")
 
     print({"ip": req.client.host, "fileName": fileName, "result": humanMEA})
