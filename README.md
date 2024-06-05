@@ -5,10 +5,14 @@
 ## API 사용법
 
 -   모든 요청은 `multipart/form-data` 데이터로 요청합니다.
+-   요청시 반드시 URL 끝에 `/` 붙어야 합니다
+
+    > http://localhost/bodymea (x) <br>
+    > http://localhost/bodymea/ (o)
 
 ## API 목록
 
-### [**POST**] `/bodymea`: 사진을 분석하여 체형을 측정 합니다
+### [**POST**] `/bodymea/`: 사진을 분석하여 체형을 측정 합니다
 
 #### 요청
 
@@ -49,7 +53,7 @@
     -   `keypoint_err`: 키포인트 검출실패
     -   `not_image`: 이미지가 아님
 
-### [**POST**] `/try-on`: 채형 사진과 의류 이미지가 합성된 이미지를 리턴합니다.
+### [**POST**] `/try-on/`: 채형 사진과 의류 이미지가 합성된 이미지를 리턴합니다.
 
 #### 요청
 
@@ -82,7 +86,7 @@
     -   `not_detection`: 사람 감지 안됨
     -   `many_detection`: 여러 사람 감지됨
 
-### [**POST**] `/getnukki`: 의류 이미지에 누끼를 땁니다.
+### [**POST**] `/getnukki/`: 의류 이미지에 누끼를 땁니다.
 
 > 관리자 기능
 
