@@ -10,7 +10,7 @@
             "cwd": "${workspaceFolder}",
             "request": "launch",
             "module": "uvicorn",
-            "args": ["src.Server:server", "--reload", "--port", " 80", "--host", "korseok.kro.kr"]
+            "args": ["src.Server:server", "--reload", "--port", " 80", "--host", "0.0.0.0"]
         },
         {
             "name": "Python 디버거: 현재 파일",

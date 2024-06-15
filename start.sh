@@ -1,1 +1,1 @@
-nohup uvicorn src.Server:server --reload --port 8080 --host http://3.38.180.77 &
+nohup  uvicorn src.Server:server --reload --port 8080 --host 0.0.0.0 &
