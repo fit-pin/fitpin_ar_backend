@@ -4,9 +4,9 @@
 
 ## API 사용법
 
-**요청 메인 URL: `https://dmumars.kro.kr:8080`**
+**요청 메인 URL: `http://dmumars.kro.kr:8080`**
 
-> 예시 /bodymea/ = https://dmumars.kro.kr:8080/bodymea/
+> 예시 /bodymea/ = http://dmumars.kro.kr:8080/bodymea/
 
 -   모든 요청은 `multipart/form-data` 데이터로 요청합니다.
 -   요청시 반드시 URL 끝에 `/` 붙어야 합니다
