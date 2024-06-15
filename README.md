@@ -14,6 +14,8 @@
     > http://localhost/bodymea (x) <br>
     > http://localhost/bodymea/ (o)
 
+**API 테스트 해보기**: http://dmumars.kro.kr:8080/docs
+
 ## API 목록
 
 ### [**POST**] [/bodymea/](https://dmumars.kro.kr:8080/bodymea/): 사진을 분석하여 체형을 측정 합니다
