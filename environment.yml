@@ -1,4 +1,4 @@
-name: .conda
+name: fitpin_ar_backend
 channels:
     - defaults
 dependencies:
@@ -11,4 +11,4 @@ dependencies:
           - opencv-python==4.10.0.84
           - cvzone==1.6.1
 
-prefix: .conda
+prefix: fitpin_ar_backend
