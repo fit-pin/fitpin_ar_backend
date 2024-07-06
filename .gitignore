@@ -1,2 +1,3 @@
+.conda
 poetry.lock
 __pycache__
