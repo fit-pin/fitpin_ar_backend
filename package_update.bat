@@ -1,1 +1,1 @@
-conda env update --prune
+conda env update -p .conda --prune
