@@ -124,19 +124,25 @@
 
 ## 빌드 및 테스트
 
-1. poetry 설치
+### Docker 사용
+
+1. Dockerfile 이미지 빌드
+
+    ```bash
+    docker buildx build --load -t fitpin .
     ```
-    pip install poetry
+
+2. 컨테이너 생성 & 실행
+
+    ```bash
+    docker run -it --name fitpin -p 8080:8080 fitpin
     ```
-2. `poetry install`: 패키지 설치
-3. `poetry run fastapi [dev, run] src/Server.py`: 서버 실행
-    - 개발시: `dev`
-    - 배포시: `run`
 
 ## 개발환경
 
 ### 개발 언어 및 프레임워크
 
--   `Python 3.12.1`
+-   `Python 3.12.4`
 -   `FastAPI`
 -   `OpenCV`
+-   `Docker`
