@@ -28,13 +28,5 @@ WORKDIR "/workspace/fitpin_ar_backend"
 # conda 가상환경 만들기
 RUN conda env create -p .conda && chmod +x start.sh
 
-RUN if [ "$WEBSERVER" = "nginx" ]; then \
-        apt-get update && apt-get install -y nginx; \
-    elif [ "$WEBSERVER" = "apache" ]; then \
-        apt-get update && apt-get install -y apache2; \
-    else \
-        echo "No valid webserver specified"; \
-    fi
-
 # 컨테이너 시작시 start.sh 파일 실행
 CMD ["/bin/bash", "-c", "./start.sh"]
