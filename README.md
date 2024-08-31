@@ -138,6 +138,14 @@
     docker run -it --name fitpin -p 8080:8080 fitpin
     ```
 
+
+### Docker-Compose 사용
+```bash
+docker compose up
+```
+
+
+
 ## 개발환경
 
 ### 개발 언어 및 프레임워크
