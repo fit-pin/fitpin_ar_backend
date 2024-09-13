@@ -16,7 +16,3 @@ server.include_router(prefix="/getnukki", router=GetNukki.router)
 @server.get("/")
 def root():
     return {"res": "ok"}
-
-@server.get("/mills")
-def testImg():
-    return FileResponse(path.join(RES_DIR, "try.png"))
