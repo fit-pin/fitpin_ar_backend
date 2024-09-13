@@ -12,6 +12,7 @@ from ultralytics import YOLO
 from ultralytics.engine.results import Results
 from src.Constant import BODY_PARTS, RES_DIR
 from src.Utills import verifyValue, distance, findRealSize, reSizeofWidth
+from rembg import remove, new_session
 
 router = APIRouter()
 
@@ -35,10 +36,12 @@ async def bodyMEAApi(anaFile: UploadFile, req: Request, personKey: float = Form(
     try:
         # width 700 픽셀로 조정
         personImg = reSizeofWidth(person_decode, 700)
-        cv.imwrite(path.join(RES_DIR, fileName), personImg)
 
         work = WorkBodyMEA(personKey, personImg)
         humanMEA = work.getHumanMEA()
+        
+        # 이미지를 누끼 따고 저장 (AR피팅 할때 필요)
+        work.saveHumanNukki(fileName)
     except Exception as e:
         print(f"애러 {req.client.host}: {e}")
         if path.exists(path.join(RES_DIR, fileName)):
@@ -71,6 +74,26 @@ class WorkBodyMEA:
     def __init__(self, personKey: int, img: cv.typing.MatLike):
         self.personKey = personKey
         self.img = img
+    
+    def saveHumanNukki(self, fileName: str):
+        """체형이미지에 사람을 누끼따고 저장합니다.
+
+        Args:
+            fileName (str): 저장할 파일명
+        """
+        session = new_session("u2net_human_seg")
+
+        result_img = remove(
+            self.img,
+            alpha_matting=True,
+            alpha_matting_foreground_threshold=20,
+            alpha_matting_background_threshold=1,
+            alpha_matting_erode_size=1,
+            bgcolor=(255, 255, 255, 255),
+            session=session,
+        )
+        
+        cv.imwrite(path.join(RES_DIR, fileName), result_img)
 
     def getHumanMEA(self) -> dict[Literal["armSize", "shoulderSize", "bodySize", "legSize"], float]:
         """입력된 정보로 신체 측정
