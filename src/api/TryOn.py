@@ -41,6 +41,8 @@ def tryOn(
             f.writelines(clothesImg.file)
 
         workTryOn = WorkTryOn(bodyPath, clothesPath, clothesType)
+        
+        print(f"{req.client.host}: AR_TryOn 진행중")  # type: ignore
         tryOnPath = workTryOn.getTryOnImg()
     except Exception as e:
         print(f"애러 {req.client.host}: {e}")  # type: ignore
