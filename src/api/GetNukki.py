@@ -8,24 +8,27 @@ router = APIRouter()
 from fastapi import APIRouter, HTTPException, Request, UploadFile
 from fastapi.responses import Response
 
+
 @router.post("/")
 def getNukki(clothesImg: UploadFile, req: Request):
     try:
         clothes_encoded = np.fromfile(clothesImg.file, dtype=np.uint8)
         clothes_decode = cv.imdecode(clothes_encoded, cv.COLOR_BGR2RGB)
-        workgetNukki =  WorkgetNukki(clothes_decode)
+        workgetNukki = WorkgetNukki(clothes_decode)
         resultsImg = workgetNukki.getNukkImg()
     except Exception as e:
         print(f"애러 {req.client.host}: {e}")
         raise HTTPException(status_code=500, detail=f"{e}")
 
-    return Response(cv.imencode(".png", resultsImg)[1].tobytes(), media_type="image/png")
+    return Response(
+        cv.imencode(".png", resultsImg)[1].tobytes(), media_type="image/png"
+    )
 
 
 class WorkgetNukki:
     def __init__(self, clothesImg: cv.typing.MatLike):
         self.clothesImg = clothesImg
-        
+
     def getNukkImg(self):
         """
         해당 의류의 누끼를 제거합니다.\n

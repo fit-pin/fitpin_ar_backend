@@ -1,20 +1,17 @@
 # 의류 합성 이미지 생성 API
 from typing import Literal
-from torch import Tensor
-from ultralytics.engine.results import Results
+import uuid
 from fastapi import APIRouter, Form, HTTPException, Request, UploadFile
-from fastapi.responses import Response
-import cv2 as cv
-import cvzone
-import numpy as np
-from os import path
+from fastapi.responses import FileResponse
+from os import path, mkdir
+from shutil import rmtree
 
-from ultralytics import YOLO
+from gradio_client import Client, handle_file
 
-from src.Constant import BODY_PARTS, RES_DIR
-from src.Utills import distance, reSizeofWidth
+from src.Constant import RES_DIR
 
 router = APIRouter()
+gradioClient = Client("yisol/IDM-VTON", download_files=path.join(RES_DIR, "temp"))
 
 
 @router.post("/")
@@ -23,40 +20,72 @@ def tryOn(
     req: Request,
     clothesType: Literal["TOP", "BOTTOM"] = Form(),
     fileName: str = Form(),
-    personKey: float = Form(),
-    clothesLenth: float = Form(),
 ):
+    # temp 폴더 비우기
+    if path.exists(path.join(RES_DIR, "temp")):
+        rmtree(path.join(RES_DIR, "temp"))
+
+    mkdir(path.join(RES_DIR, "temp"))
+
     bodyPath = path.join(RES_DIR, fileName)
     try:
-        if not path.exists(bodyPath):
+        if not path.exists(bodyPath) or not clothesImg.filename:
             raise Exception("not_exists_bodyImg")
 
-        clothes_encoded = np.fromfile(clothesImg.file, dtype=np.uint8)
-        clothes_decode = cv.imdecode(clothes_encoded, cv.IMREAD_UNCHANGED)
+        # 파일명 에서 확장자 구하기
+        exte = clothesImg.filename.split(".")[-1]
 
-        personImg = cv.imread(bodyPath)
+        clothesPath = path.join(RES_DIR, "temp", f"{uuid.uuid4()}.{exte}")
 
-        workTryOn = WorkTryOn(personImg, clothes_decode, clothesType)
+        with open(clothesPath, "wb") as f:
+            f.writelines(clothesImg.file)
+
+        workTryOn = WorkTryOn(bodyPath, clothesPath, clothesType)
+        tryOnPath = workTryOn.getTryOnImg()
     except Exception as e:
-        print(f"애러 {req.client.host}: {e}")
+        print(f"애러 {req.client.host}: {e}")  # type: ignore
         raise HTTPException(status_code=500, detail=f"{e}")
 
-    return {"res": "clothesMEA"}
+    return FileResponse(tryOnPath, media_type="image/png")
 
 
 class WorkTryOn:
-    model = YOLO("src/model/yolov8n-pose.pt")
 
     def __init__(
-        self, personImg: cv.typing.MatLike, clothesImg: cv.typing.MatLike, clothesType: Literal["TOP", "BOTTOM"]
+        self, bodyPath: str, clothesPath: str, clothesType: Literal["TOP", "BOTTOM"]
     ):
         """TryOn 작업 생성하기
 
         Args:
-            personImg (cv.typing.MatLike): 채형 이미지
-            clothesImg (cv.typing.MatLike): 의류 이미지 (누끼 따진)
+            bodyPath (cv.typing.MatLike): 채형 이미지 경로
+            clothesPath (cv.typing.MatLike): 의류 이미지 경로
             clothesType (Literal["TOP", "BOTTOM"]): 상의 하의 구분
         """
-        self.personImg = personImg
-        self.clothesImg = clothesImg
+        self.bodyPath = bodyPath
+        self.clothesPath = clothesPath
         self.clothesType: Literal["TOP", "BOTTOM"] = clothesType
+
+    def getTryOnImg(self):
+        """
+        IDM-VTON 으로 예측한 이미지를 반환합니다
+
+        Returns:
+            str: 예측이미지
+        """
+
+        result: tuple[str] = gradioClient.predict(
+            dict={
+                "background": handle_file(self.bodyPath),
+                "layers": [],
+                "composite": None,
+            },
+            garm_img=handle_file(self.clothesPath),
+            garment_des="any",
+            is_checked=True,
+            is_checked_crop=True,
+            denoise_steps=30,
+            seed=42,
+            api_name="/tryon",
+        )
+
+        return result[0]

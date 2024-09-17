@@ -39,7 +39,7 @@ async def bodyMEAApi(anaFile: UploadFile, req: Request, personKey: float = Form(
 
         work = WorkBodyMEA(personKey, personImg)
         humanMEA = work.getHumanMEA()
-        
+
         # 이미지를 누끼 따고 저장 (AR피팅 할때 필요)
         work.saveHumanNukki(fileName)
     except Exception as e:
@@ -74,7 +74,7 @@ class WorkBodyMEA:
     def __init__(self, personKey: int, img: cv.typing.MatLike):
         self.personKey = personKey
         self.img = img
-    
+
     def saveHumanNukki(self, fileName: str):
         """체형이미지에 사람을 누끼따고 저장합니다.
 
@@ -92,10 +92,12 @@ class WorkBodyMEA:
             bgcolor=(255, 255, 255, 255),
             session=session,
         )
-        
+
         cv.imwrite(path.join(RES_DIR, fileName), result_img)
 
-    def getHumanMEA(self) -> dict[Literal["armSize", "shoulderSize", "bodySize", "legSize"], float]:
+    def getHumanMEA(
+        self,
+    ) -> dict[Literal["armSize", "shoulderSize", "bodySize", "legSize"], float]:
         """입력된 정보로 신체 측정
 
         Returns:
@@ -165,4 +167,9 @@ class WorkBodyMEA:
         )
         legSize = round(legSize, 2)
 
-        return {"armSize": armSize, "shoulderSize": shoulderSize, "bodySize": bodySize, "legSize": legSize}
+        return {
+            "armSize": armSize,
+            "shoulderSize": shoulderSize,
+            "bodySize": bodySize,
+            "legSize": legSize,
+        }
