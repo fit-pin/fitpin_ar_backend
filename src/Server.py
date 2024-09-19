@@ -19,4 +19,4 @@ def root():
 
 @server.get("/mills")
 def testImg():
-    return FileResponse(path.join(RES_DIR, "try.png"))
+    return FileResponse(path.join(RES_DIR, "try.jpg"))
