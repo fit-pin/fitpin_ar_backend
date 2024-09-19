@@ -1,4 +1,5 @@
 # 의류 합성 이미지 생성 API
+import logging
 from typing import Literal
 import uuid
 from fastapi import APIRouter, Form, HTTPException, Request, UploadFile
@@ -11,8 +12,9 @@ from gradio_client import Client, handle_file
 from src.Constant import RES_DIR
 
 router = APIRouter()
-gradioClient = Client("yisol/IDM-VTON", download_files=path.join(RES_DIR, "temp"))
+logger = logging.getLogger('uvicorn.error')
 
+gradioClient = Client("yisol/IDM-VTON", download_files=path.join(RES_DIR, "temp"))
 
 @router.post("/")
 def tryOn(
@@ -41,11 +43,11 @@ def tryOn(
             f.writelines(clothesImg.file)
 
         workTryOn = WorkTryOn(bodyPath, clothesPath, clothesType)
-        
-        print(f"{req.client.host}: AR_TryOn 진행중")  # type: ignore
+
+        logger.info(f"{req.client.host}:{req.client.port} - AR_TryOn 진행중")
         tryOnPath = workTryOn.getTryOnImg()
     except Exception as e:
-        print(f"애러 {req.client.host}: {e}")  # type: ignore
+        logger.error(f"{req.client.host}:{req.client.port} - 애러: {e}")
         raise HTTPException(status_code=500, detail=f"{e}")
 
     return FileResponse(tryOnPath, media_type="image/png")

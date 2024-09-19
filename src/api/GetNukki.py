@@ -1,4 +1,5 @@
 # 누끼 따는 API
+import logging
 from fastapi import APIRouter
 import cv2 as cv
 import numpy as np
@@ -8,6 +9,7 @@ router = APIRouter()
 from fastapi import APIRouter, HTTPException, Request, UploadFile
 from fastapi.responses import Response
 
+logger = logging.getLogger('uvicorn.error')
 
 @router.post("/")
 def getNukki(clothesImg: UploadFile, req: Request):
@@ -17,7 +19,7 @@ def getNukki(clothesImg: UploadFile, req: Request):
         workgetNukki = WorkgetNukki(clothes_decode)
         resultsImg = workgetNukki.getNukkImg()
     except Exception as e:
-        print(f"애러 {req.client.host}: {e}")
+        logger.error(f"{req.client.host}:{req.client.port} - 애러: {e}")
         raise HTTPException(status_code=500, detail=f"{e}")
 
     return Response(

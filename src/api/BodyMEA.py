@@ -1,4 +1,5 @@
 # 신체 측정 API
+import logging
 import os
 from os import path
 from typing import Literal
@@ -15,7 +16,7 @@ from src.Utills import verifyValue, distance, findRealSize, reSizeofWidth
 from rembg import remove, new_session
 
 router = APIRouter()
-
+logger = logging.getLogger('uvicorn.error')
 
 # 신체 측정 api
 @router.post("/")
@@ -40,17 +41,16 @@ async def bodyMEAApi(anaFile: UploadFile, req: Request, personKey: float = Form(
         work = WorkBodyMEA(personKey, personImg)
         humanMEA = work.getHumanMEA()
 
-        # 이미지를 누끼 따고 저장 (AR피팅 할때 필요)
-        work.saveHumanNukki(fileName)
+        # 체형 이미지 저장
+        work.saveHumanImage(path.join(RES_DIR, fileName))
     except Exception as e:
-        print(f"애러 {req.client.host}: {e}")
+        logger.error(f"{req.client.host}:{req.client.port} - 애러: {e}")
         if path.exists(path.join(RES_DIR, fileName)):
             os.remove(path.join(RES_DIR, fileName))
         raise HTTPException(status_code=500, detail=f"{e}")
 
-    print({"ip": req.client.host, "fileName": fileName, "result": humanMEA})
-
     res = {"fileName": fileName, "result": humanMEA}
+    logger.info(f"{req.client.host}:{req.client.port} - 채형측정 완료: {res}")
 
     return JSONResponse(content=res, media_type="application/json")
 
@@ -75,8 +75,8 @@ class WorkBodyMEA:
         self.personKey = personKey
         self.img = img
 
-    def saveHumanNukki(self, fileName: str):
-        """체형이미지에 사람을 누끼따고 저장합니다.
+    def getHumanNukki(self) -> cv.typing.MatLike:
+        """체형이미지에 사람을 누끼딴 이미지를 반환합니다.
 
         Args:
             fileName (str): 저장할 파일명
@@ -92,9 +92,19 @@ class WorkBodyMEA:
             bgcolor=(255, 255, 255, 255),
             session=session,
         )
+        
+        return result_img # type: ignore
+    
+    
+    def saveHumanImage(self, fileName: str):
+        """채형 사진을 저장합니다
 
-        cv.imwrite(path.join(RES_DIR, fileName), result_img)
-
+        Args:
+            fileName (str): 저장경로
+        """
+        cv.imwrite(fileName, self.img)
+        
+    
     def getHumanMEA(
         self,
     ) -> dict[Literal["armSize", "shoulderSize", "bodySize", "legSize"], float]:
