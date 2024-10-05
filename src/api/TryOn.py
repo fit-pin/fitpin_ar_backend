@@ -44,10 +44,10 @@ def tryOn(
 
         workTryOn = WorkTryOn(bodyPath, clothesPath, clothesType)
 
-        logger.info(f"{req.client.host}:{req.client.port} - AR_TryOn 진행중")
+        logger.info(f"{req.client.host}:{req.client.port} - AR_TryOn 진행중") # type: ignore
         tryOnPath = workTryOn.getTryOnImg()
     except Exception as e:
-        logger.error(f"{req.client.host}:{req.client.port} - 애러: {e}")
+        logger.error(f"{req.client.host}:{req.client.port} - 애러: {e}") # type: ignore
         raise HTTPException(status_code=500, detail=f"{e}")
 
     return FileResponse(tryOnPath, media_type="image/png")

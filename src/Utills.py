@@ -1,7 +1,18 @@
 import math
+from typing import Literal
 
 import cv2 as cv
+import numpy as np
 from torch import Tensor
+import torchvision.transforms as transforms
+
+Normal = transforms.Compose(
+    [
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ]
+)
+"""이미지 정규화 구성"""
 
 
 def findRealSize(refSize: float, refPx: float, findPx: float):
@@ -20,7 +31,7 @@ def findRealSize(refSize: float, refPx: float, findPx: float):
     return findPx * cm_per_px
 
 
-def distance(points: list[tuple[float]]) -> float:
+def distance(points: Tensor | list) -> float:
     """여러 점들 사이 길이 구하는 함수
 
     Args:
@@ -70,7 +81,7 @@ def reSizeofHight(img: cv.typing.MatLike, reHight: int):
     return cv.resize(img, (reWidth, reHight), interpolation=cv.INTER_AREA)
 
 
-def verifyValue(values: list[float | Tensor]):
+def verifyValue(values: Tensor | list):
     """리스트 값 유효성 확인
 
     Args:
@@ -84,3 +95,65 @@ def verifyValue(values: list[float | Tensor]):
         if value == 0:
             return False
     return True
+
+
+def getNormalizimage(img: cv.typing.MatLike):
+    """
+    이미지를 정규화 하여 반환 합니다.</br>
+    반환된 이미지로 `getKeyPointsResult()` 함수를 호출하여 keyPoint 를 예측합니다
+
+    Args:
+        img (cv2.typing.MatLike): cv 이미지
+
+    Returns:
+        Tensor: 정규화된 이미지 텐서
+    """
+    nom = Normal(img)
+    res = Tensor(np.expand_dims(nom, axis=0))
+    return res
+
+
+def resizeWithPad(
+    image: cv.typing.MatLike,
+    new_shape: tuple[int, int],
+    padding_color: tuple[int, int, int] = (255, 255, 255),
+) -> tuple[cv.typing.MatLike, dict[Literal["top", "bottom", "left", "right"], int]]:
+    """
+    비율을 유지하여 이미지를 자릅니다.</br>
+    이때 비율을 유지하기 위해 잘려진 부분은 `padding_color`로 채워 집니다
+
+    Params:
+        image (MatLike): 원본 이미지
+        new_shape (Tuple[int, int]): 바꿀 크기
+        padding_color (Tuple[int, int, int]): 잘려진 부분 색상
+    Returns:
+        tuple[cv2.typing.MatLike, dict[str, int]]</br>
+        - `[0]`: 잘려진 이미지
+        - `[1]`: paddig 값
+    """
+    original_shape = (image.shape[1], image.shape[0])
+    ratio = float(max(new_shape)) / max(original_shape)
+    new_size = tuple([int(x * ratio) for x in original_shape])
+
+    test_w = new_shape[0] - new_size[0]
+    test_h = new_shape[1] - new_size[1]
+
+    if test_w < 0:
+        ratio = float(new_shape[0] / new_size[0])
+        new_size = tuple([int(x * ratio) for x in new_size])
+    elif test_h < 0:
+        ratio = float(new_shape[1] / new_size[1])
+        new_size = tuple([int(x * ratio) for x in new_size])
+
+    image = cv.resize(image, new_size)
+
+    delta_w = new_shape[0] - new_size[0]
+    delta_h = new_shape[1] - new_size[1]
+    top, bottom = delta_h // 2, delta_h - (delta_h // 2)
+    left, right = delta_w // 2, delta_w - (delta_w // 2)
+
+    image = cv.copyMakeBorder(
+        image, top, bottom, left, right, cv.BORDER_CONSTANT, value=padding_color
+    )
+
+    return image, {"top": top, "bottom": bottom, "left": left, "right": right}

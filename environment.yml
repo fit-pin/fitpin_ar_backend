@@ -1,15 +1,19 @@
 name: fitpin_ar_backend
 channels:
     - defaults
+    - pytorch
 dependencies:
     - pip=24.0
     - python=3.12.4
+    - pytorch==2.3.1
+    - torchaudio==2.3.1
+    - torchvision==0.18.1
     - pip:
           - fastapi==0.111.0
           - rembg==2.0.57
-          - ultralytics==8.2.50
           - opencv-python==4.10.0.84
           - cvzone==1.6.1
           - gradio-client==1.1.0
+          - ultralytics
 
 prefix: fitpin_ar_backend

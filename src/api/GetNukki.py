@@ -19,7 +19,7 @@ def getNukki(clothesImg: UploadFile, req: Request):
         workgetNukki = WorkgetNukki(clothes_decode)
         resultsImg = workgetNukki.getNukkImg()
     except Exception as e:
-        logger.error(f"{req.client.host}:{req.client.port} - 애러: {e}")
+        logger.error(f"{req.client.host}:{req.client.port} - 애러: {e}") # type: ignore
         raise HTTPException(status_code=500, detail=f"{e}")
 
     return Response(
@@ -31,22 +31,23 @@ class WorkgetNukki:
     def __init__(self, clothesImg: cv.typing.MatLike):
         self.clothesImg = clothesImg
 
-    def getNukkImg(self):
+    def getNukkImg(self) -> cv.typing.MatLike:
         """
-        해당 의류의 누끼를 제거합니다.\n
+        해당 의류의 누끼를 제거합니다.</br>
         이때 배경 영역인 부분은 의류 이미지와 딱 맞게 재조정 됩니다.
 
         Returns:
-            MatLike: 누끼 따진 이미지
+            cv.typing.MatLike: 누끼 따진 이미지
         """
+
         # 누끼 따기
-        result_img = remove(
+        result_img: cv.typing.MatLike = remove(
             self.clothesImg,
             alpha_matting=True,
             alpha_matting_foreground_threshold=240,
             alpha_matting_background_threshold=10,
             alpha_matting_erode_size=10,
-        )
+        ) # type: ignore
 
         # 알파 채널 분리
         alpha_channel = result_img[:, :, 3]
