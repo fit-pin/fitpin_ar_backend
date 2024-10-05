@@ -201,6 +201,9 @@
 
 ## 빌드 및 테스트
 
+### [모델파일 다운로드](https://huggingface.co/Seoksee/MY_MODEL_FILE/tree/main)
+-  `.gitattributes` 를 제외한 모든 파일을 `src/model`에 넣기
+
 ### Docker 사용
 
 1. Dockerfile 이미지 빌드
