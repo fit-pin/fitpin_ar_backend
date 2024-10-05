@@ -28,13 +28,20 @@ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-$(uname -i).sh 
 bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 && \
 rm -rf ~/miniconda3/miniconda.sh && \
 source ~/.bashrc
-
 ENV PATH "/home/${USER_NAME}/miniconda3/bin:$PATH"
 RUN source ~/.bashrc && conda init
 
 #fitpin_ar_backend clone
 RUN git clone https://github.com/fit-pin/fitpin_ar_backend.git
 WORKDIR "/home/${USER_NAME}/fitpin_ar_backend"
+
+# 모델파일 다운로드
+RUN wget --content-disposition -P ./src/model \
+https://huggingface.co/Seoksee/MY_MODEL_FILE/resolve/main/Clothes-Card.pt?download=true && \
+wget --content-disposition -P ./src/model \
+https://huggingface.co/Seoksee/MY_MODEL_FILE/resolve/main/pose_hrnet-w48_384x288-deepfashion2_mAP_0.7017.pth?download=true && \
+wget --content-disposition -P ./src/model \
+https://huggingface.co/Seoksee/MY_MODEL_FILE/resolve/main/yolov8n-pose.pt?download=true
 
 # conda 가상환경 만들기
 RUN conda env create -p .conda && chmod +x start.sh
