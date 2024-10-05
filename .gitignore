@@ -1,4 +1,6 @@
-.conda
 __pycache__
+.conda/*
+src/res/temp/*
+src/model/*
+!src/model/*.txt
 
-src/res/temp

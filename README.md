@@ -92,6 +92,39 @@
     -   `not_detection`: 사람 감지 안됨
     -   `many_detection`: 여러 사람 감지됨
 
+### [**POST**] [/clothesmea/](https://dmumars.kro.kr:8080/clothesmea): 오프라인 의류 측정을 진행합니다.
+
+#### 요청
+
+-   `Header`
+    -   Content-Type: `multipart/form-data`
+-   `Body`
+
+    -   clothesImg: `File` - 누끼 따진 의류 이미지 (바이너리)
+    -   clothesType: `String` - 의류 타입 (아래 값 만 허용)
+
+        ```text
+        반팔 |  긴팔 | 반팔 아우터 | 긴팔 아우터 | 조끼 | 슬링 | 반바지 | 긴바지 | 치마 | 반팔 원피스 | 긴팔 원피스 | 조끼 원피스 | 슬링 원피스
+        ```
+
+#### 정상응답 (code: 200)
+
+-   Content-Type: `image/png`
+
+> 측정된 의류 이미지 반환
+
+#### 오류응답 (code: 500)
+
+-   Content-Type: `application/json`
+
+```js
+{ "detail": "오류 메시지" }
+```
+
+-   오류 메시지
+    -   `not_image`: 이미지가 아님
+    -   `not_detection_card`: 사진에 카드를 감지하지 못함
+
 ### [**POST**] [/getnukki/](https://dmumars.kro.kr:8080/getnukki/): 의류 이미지에 누끼를 땁니다.
 
 > 관리자 기능
@@ -122,6 +155,50 @@
 
     > 정의된 오류는 없음
 
+## Development Guide
+
+### ClothesMEA 의류 추가
+
+> 현재는 긴팔, 긴바지 밖에 못함
+
+1. `CustumTypes.py` 하단에 해당 의류의 측정 부위 추가
+
+    ```python
+    변수명 = Literal["허리단면", "밑위", "엉덩이단면", "허벅지단면", "총장", "밑단단면"]
+    """실측 타입 명시"""
+    ```
+
+2. `ClothesMEA.py` 하단 `LIST_KEY_POINTS`에 측정 부위별 키포인트를 명시
+
+    > 측정 부위는 [해당링크](https://github.com/switchablenorms/DeepFashion2/blob/master/images/cls.jpg) 또는 테스트를 진행해서 조사
+
+    - 키 값은 `CustumTypes.py` 에 명시해둔 `maskKeyPointsType` 안에 포함된 값이여야 함
+
+    ```python
+    "반바지": dict[1번과정에서 설정한 변수, tuple](
+        {
+            "부위": (0, 2),
+        }
+    ),
+    ```
+
+3. 추가적으로 `tuple` 관련 애러가 뜬다면 `COLOR_MAP` 변수가 부족한 거
+
+    - 원하는 색상 검색해서 추가 하기 (B, G, R)
+
+    ```python
+    COLOR_MAP = (
+        (181, 253, 120),
+        (154, 153, 253),
+        (221, 153, 0),
+        (247, 247, 244),
+        (250, 65, 137),
+        (2, 78, 235),
+        ...원하는거 추가
+    )
+
+    ```
+
 ## 빌드 및 테스트
 
 ### Docker 사용
@@ -138,13 +215,11 @@
     docker run -it --name fitpin -p 8080:8080 fitpin
     ```
 
-
 ### Docker-Compose 사용
+
 ```bash
 docker compose up
 ```
-
-
 
 ## 개발환경
 

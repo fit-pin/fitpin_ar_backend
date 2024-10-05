@@ -57,6 +57,18 @@ def clothesMEAApi(
 
 
 class WorkClothesMEA:
+    FONT_SIZE = 6
+    """폰트 크기"""
+
+    LINE_SIZE = 7
+    """라인 크기"""
+
+    POINT_SIZE = 15
+    """점 크기 """
+
+    TEXT_POSITION = (150, 150)
+    """최대 텍스트 표시 거리 (x ,y)"""
+
     def __init__(
         self,
         clothesImg: cv.typing.MatLike,
@@ -88,7 +100,7 @@ class WorkClothesMEA:
 
         Returns:
             cv.typing.MatLike: 완성된 이미지
-            
+
         Raises:
             Exception:
                 - not_detection_card: 카드 감지 불가
@@ -162,17 +174,28 @@ class WorkClothesMEA:
                     (int(point[0]), int(point[1])),
                     2,
                     WorkClothesMEA.COLOR_MAP[i],
-                    10,
+                    WorkClothesMEA.POINT_SIZE,
                 )
                 if k < len(points) - 1:
                     pt1 = (int(points[k][0]), int(points[k][1]))
                     pt2 = (int(points[k + 1][0]), int(points[k + 1][1]))
-                    cv.line(self.clothesImg, pt1, pt2, WorkClothesMEA.COLOR_MAP[i], 5)
+                    cv.line(
+                        self.clothesImg,
+                        pt1,
+                        pt2,
+                        WorkClothesMEA.COLOR_MAP[i],
+                        WorkClothesMEA.LINE_SIZE,
+                    )
 
         # 각각의 중점 좌표가 똑같은 경우 텍스트 겹침 현상을 해결하고자 만든 반복문
         # 자신의 좌표가 centerPose에 저장된 값과 +- 100 이하면 +100 해주는 코드
         for i, part in enumerate(MEAData.keys()):
             strSize = f"{round(realDist_Dict[part], 2)}cm"
+
+            # 텍스트 영역 제한하기
+            self.__limitTextPosition(
+                self.clothesImg, centerPose[i], *WorkClothesMEA.TEXT_POSITION
+            )
 
             # i값의 중점 x 좌표를 모든 좌표와 뺄샘 연산을 진행
             x_per = torch_abs(centerPose - centerPose[i][0])
@@ -203,7 +226,7 @@ class WorkClothesMEA:
                 strSize,
                 (int(cul_points[0] + 30), int(cul_points[1]) - 30),
                 cv.FONT_HERSHEY_PLAIN,
-                5,
+                WorkClothesMEA.FONT_SIZE,
                 WorkClothesMEA.COLOR_MAP[i],
                 5,
             )
@@ -228,7 +251,7 @@ class WorkClothesMEA:
         if not len(result.obb.cls):  # type: ignore
             err_flags.append("not_detection_card")
             return
-        
+
         # 예측확율 가장 좋은거 선택
         max_value = 0.0
         max_index = 0
@@ -269,8 +292,6 @@ class WorkClothesMEA:
 
         # 이미지 크기를 288x384 로 변경
         reSizeImage, padding = Utills.resizeWithPad(self.clothesImg, (288, 384))
-
-        print(f"getKeyPoints: 이미지에 적용된 패딩: {padding}")
 
         # 이미지 정규화 하기
         normaImg = Utills.getNormalizimage(reSizeImage)
@@ -410,22 +431,42 @@ class WorkClothesMEA:
             dict[Any, Tensor]: 결과반환
         """
         resultDict = {}
-        if type == "긴팔":
-            for key in WorkClothesMEA.TOP_KEY_POINTS.keys():
-                # 이게 리스트 안에 Tensor 가 있어서 stack() 함수로 전체를 변환해야함
-                resultDict[key] = stack(
-                    [resultPoint[index] for index in WorkClothesMEA.TOP_KEY_POINTS[key]]
-                )
-        elif type == "긴바지":
-            for key in WorkClothesMEA.BOTTOM_KEY_POINTS.keys():
-                resultDict[key] = stack(
-                    [
-                        resultPoint[index]
-                        for index in WorkClothesMEA.BOTTOM_KEY_POINTS[key]
-                    ]
-                )
+        for list in WorkClothesMEA.LIST_KEY_POINTS.keys():
+            if list == type:
+                for key in WorkClothesMEA.LIST_KEY_POINTS[type]:
+                    resultDict[key] = stack(
+                        [
+                            resultPoint[index]
+                            for index in WorkClothesMEA.LIST_KEY_POINTS[list][key]
+                        ]
+                    )
+                break
 
         return resultDict
+
+    def __limitTextPosition(
+        self, img: cv.typing.MatLike, points: Tensor, x_max: int, y_min: int
+    ):
+        """
+        Tensor에 최소 텍스트 표시 영역을 설정합니다.</br>
+        영역을 넘어가는 부분은 `x_max`, `y_min` 값으로 대체됩니다
+
+        Args:
+            img (cv2.typing.MatLike): 원본이미지
+            points (Tensor): 현재 표시 영역
+            x_max (int): 최대 표시되는 x좌표
+            y_min (int): 최소 표시되는 y좌표
+        """
+
+        x = img.shape[1]
+
+        x_pad = x < (x_max + points[0])
+        y_pad = y_min > points[1]
+
+        if x_pad:
+            points[0] = x - x_max
+        if y_pad:
+            points[1] = y_min
 
     # 상수정의
     CARDPOINT_MODEL = YOLO("src/model/Clothes-Card.pt")
@@ -443,7 +484,14 @@ class WorkClothesMEA:
     CARD_SIZE = (8.56, 5.398)
     """신용카드 규격 (가로, 세로)"""
 
-    COLOR_MAP = ((181, 253, 120), (154, 153, 253), (221, 153, 0), (247, 247, 244))
+    COLOR_MAP = (
+        (181, 253, 120),
+        (154, 153, 253),
+        (221, 153, 0),
+        (247, 247, 244),
+        (250, 65, 137),
+        (2, 78, 235),
+    )
     """키포인트 컬러맵"""
 
     MASK_KEY_POINTS: dict[CustumTypes.maskKeyPointsType, tuple] = {
@@ -466,20 +514,26 @@ class WorkClothesMEA:
     [예시 참고 사진](https://github.com/switchablenorms/DeepFashion2/blob/master/images/cls.jpg)
     """
 
-    TOP_KEY_POINTS: dict[CustumTypes.TopKeyPointsType, tuple] = {
-        "어깨너비": (6, 32),
-        "가슴단면": (15, 23),
-        "소매길이": (32, 31, 30, 29, 28),
-        "총장": (0, 19),
+    LIST_KEY_POINTS: dict[CustumTypes.maskKeyPointsType, dict] = {
+        "긴팔": dict[CustumTypes.TopKeyPointsType, tuple](
+            {
+                "어깨너비": (6, 32),
+                "가슴단면": (15, 23),
+                "소매길이": (32, 31, 30, 29, 28),
+                "총장": (0, 19),
+            }
+        ),
+        # 긴팔 실측 키포인트
+        "긴바지": dict[CustumTypes.BottomKeyPointsType, tuple](
+            {
+                "허리단면": (0, 2),
+                "밑위": (1, 8),
+                "엉덩이단면": (3, 13),
+                "허벅지단면": (8, 13),
+                "총장": (0, 3, 4, 5),
+                "밑단단면": (5, 6),
+            }
+        ),
+        # 긴바지 실측 키포인트
     }
-    """긴팔 실측 키포인트"""
-
-    BOTTOM_KEY_POINTS: dict[CustumTypes.BottomKeyPointsType, tuple] = {
-        "허리단면": (0, 2),
-        "밑위": (1, 8),
-        "엉덩이단면": (3, 13),
-        "허벅지단면": (8, 13),
-        "총장": (0, 3, 4, 5),
-        "밑단단면": (5, 6),
-    }
-    """긴바지 실측 키포인트"""
+    """실측 키포인트 목록"""
