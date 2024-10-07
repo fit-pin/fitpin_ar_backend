@@ -238,5 +238,6 @@ docker compose up
 
 -   `Python 3.12.4`
 -   `FastAPI`
+-   `Pytorch`
 -   `OpenCV`
 -   `Docker`
