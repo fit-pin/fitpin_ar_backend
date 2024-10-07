@@ -61,17 +61,20 @@
 
 ### [**POST**] [/try-on/](https://dmumars.kro.kr:8080/try-on/): 채형 사진과 의류 이미지가 합성된 이미지를 리턴합니다.
 
+> 해당 API 요청은 [IDM-VTON-FastAPI](https://github.com/fit-pin/IDM-VTON-FastAPI) 서버로 리다이렉트 되어 요청을 처리합니다
+
 #### 요청
 
 -   `Header`
     -   Content-Type: `multipart/form-data`
 -   `Body`
 
-    -   clothesImg: `File` - 누끼 따진 의류 이미지 (바이너리)
-    -   clothesType: `String` - `"TOP"` | `"BOTTOM"`
-    -   fileName: `Float` - 채형 측정시 나온 파일 이름
-    -   personKey: `Float` - 사용자 키(cm)
-    -   clothesLenth: `Float` - 옷, 바지 총장
+    -   humanImg: `File` - 체형사진 (바이너리)
+    -   clothesImg: `File` - 의류사진 (바이너리)
+    -   is_checked: `bool = 기본값(True)` - Use auto-generated mask 설정
+    -   is_checked_crop: `bool = 기본값(True)` - 크롭 사용
+    -   denoise_steps: `int = 기본값(30)` - 노이즈 재거 단계
+    -   seed: `int = 기본값(42)` - 랜덤시드
 
 #### 정상응답 (code: 200)
 
@@ -88,9 +91,8 @@
 ```
 
 -   오류 메시지
-    -   `not_exists_bodyImg`: 채형 측정 이미지가 없음
-    -   `not_detection`: 사람 감지 안됨
-    -   `many_detection`: 여러 사람 감지됨
+
+    > 정의된 오류는 없음
 
 ### [**POST**] [/clothesmea/](https://dmumars.kro.kr:8080/clothesmea): 오프라인 의류 측정을 진행합니다.
 
@@ -174,35 +176,35 @@
 
     - 키 값은 `CustumTypes.py` 에 명시해둔 `maskKeyPointsType` 안에 포함된 값이여야 함
 
-    ```python
-    "반바지": dict[1번과정에서 설정한 변수, tuple](
-        {
-            "부위": (0, 2),
-        }
-    ),
-    ```
+        ```python
+        "반바지": dict[1번과정에서 설정한 변수, tuple](
+            {
+                "부위": (0, 2),
+            }
+        ),
+        ```
 
 3. 추가적으로 `tuple` 관련 애러가 뜬다면 `COLOR_MAP` 변수가 부족한 거
 
     - 원하는 색상 검색해서 추가 하기 (B, G, R)
 
-    ```python
-    COLOR_MAP = (
-        (181, 253, 120),
-        (154, 153, 253),
-        (221, 153, 0),
-        (247, 247, 244),
-        (250, 65, 137),
-        (2, 78, 235),
-        ...원하는거 추가
-    )
-
-    ```
+        ```python
+        COLOR_MAP = (
+            (181, 253, 120),
+            (154, 153, 253),
+            (221, 153, 0),
+            (247, 247, 244),
+            (250, 65, 137),
+            (2, 78, 235),
+            ...원하는거 추가
+        )
+        ```
 
 ## 빌드 및 테스트
 
 ### [모델파일 다운로드](https://huggingface.co/Seoksee/MY_MODEL_FILE/tree/main)
--  `.gitattributes` 를 제외한 모든 파일을 `src/model`에 넣기
+
+-   `.gitattributes` 를 제외한 모든 파일을 `src/model`에 넣기
 
 ### Docker 사용
 
