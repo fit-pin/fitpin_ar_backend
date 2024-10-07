@@ -2,7 +2,8 @@
 import logging
 
 from fastapi import APIRouter, Form, HTTPException, Request, Response, UploadFile
-from src.Constant import IDM_URL
+
+import Constant
 from requests import post as reqPost
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
@@ -45,7 +46,7 @@ def tryOn(
         )
 
         res = reqPost(
-            IDM_URL,
+            Constant.IDM_URL,
             data=mutiPartBody,
             headers={"Content-Type": mutiPartBody.content_type},
         )

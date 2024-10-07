@@ -21,10 +21,10 @@ from torch.cuda import is_available
 from torch.nn import DataParallel
 
 from ultralytics import YOLO
-from src.lib import pose_hrnet
+from lib import pose_hrnet
 
-from src import Utills
-from src import CustumTypes
+import Utills
+import CustumTypes
 
 
 router = APIRouter()

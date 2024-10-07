@@ -1,6 +1,7 @@
 from fastapi import FastAPI
+from uvicorn.config import LOGGING_CONFIG
 
-from .api import BodyMEA, ClothesMEA, TryOn, GetNukki
+from api import BodyMEA, ClothesMEA, TryOn, GetNukki
 
 server = FastAPI(redoc_url=None)
 

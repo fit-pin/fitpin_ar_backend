@@ -11,8 +11,9 @@ import cv2 as cv
 import numpy as np
 from ultralytics import YOLO
 from ultralytics.engine.results import Results
-from src import Constant
-from src.Utills import verifyValue, distance, findRealSize, reSizeofWidth
+
+import Constant
+from Utills import verifyValue, distance, findRealSize, reSizeofWidth
 from rembg import remove, new_session
 
 router = APIRouter()

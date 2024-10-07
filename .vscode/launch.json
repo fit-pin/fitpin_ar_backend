@@ -18,7 +18,9 @@
                 "--host",
                 "0.0.0.0",
                 "--log-config",
-                "./log-config.yml"
+                "./src/log-config.yml",
+                "--app-dir",
+                "./src"
             ]
         },
         {
