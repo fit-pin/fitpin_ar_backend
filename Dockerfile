@@ -26,10 +26,9 @@ WORKDIR "/home/${USER_NAME}"
 RUN mkdir -p ~/miniconda3 && \
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-$(uname -i).sh -O ~/miniconda3/miniconda.sh && \
 bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 && \
-rm -rf ~/miniconda3/miniconda.sh && \
-source ~/.bashrc
-ENV PATH "/home/${USER_NAME}/miniconda3/bin:$PATH"
-RUN source ~/.bashrc && conda init
+rm -rf ~/miniconda3/miniconda.sh
+ENV PATH="/home/${USER_NAME}/miniconda3/bin:$PATH"
+RUN conda init && source ~/.bashrc
 
 #fitpin_ar_backend clone
 RUN git clone https://github.com/fit-pin/fitpin_ar_backend.git
