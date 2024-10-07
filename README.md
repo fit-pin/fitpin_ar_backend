@@ -18,7 +18,7 @@
 
 ## API 목록
 
-### [**POST**] [/bodymea/](https://dmumars.kro.kr:8080/bodymea/): 사진을 분석하여 체형을 측정 합니다
+### [**POST**] [/bodymea/](http://dmumars.kro.kr:8080/bodymea/): 사진을 분석하여 체형을 측정 합니다
 
 #### 요청
 
@@ -59,9 +59,9 @@
     -   `keypoint_err`: 키포인트 검출실패
     -   `not_image`: 이미지가 아님
 
-### [**POST**] [/try-on/](https://dmumars.kro.kr:8080/try-on/): 채형 사진과 의류 이미지가 합성된 이미지를 리턴합니다.
+### [**POST**] [/try-on/](http://dmumars.kro.kr:8080/try-on/): 채형 사진과 의류 이미지가 합성된 이미지를 리턴합니다.
 
-> 해당 API 요청은 [IDM-VTON-FastAPI](https://github.com/fit-pin/IDM-VTON-FastAPI) 서버로 리다이렉트 되어 요청을 처리합니다
+> 해당 API 요청은 [IDM-VTON-FastAPI](http://github.com/fit-pin/IDM-VTON-FastAPI) 서버로 리다이렉트 되어 요청을 처리합니다
 
 #### 요청
 
@@ -94,7 +94,7 @@
 
     > 정의된 오류는 없음
 
-### [**POST**] [/clothesmea/](https://dmumars.kro.kr:8080/clothesmea): 오프라인 의류 측정을 진행합니다.
+### [**POST**] [/clothesmea/](http://dmumars.kro.kr:8080/clothesmea): 오프라인 의류 측정을 진행합니다.
 
 #### 요청
 
@@ -127,7 +127,7 @@
     -   `not_image`: 이미지가 아님
     -   `not_detection_card`: 사진에 카드를 감지하지 못함
 
-### [**POST**] [/getnukki/](https://dmumars.kro.kr:8080/getnukki/): 의류 이미지에 누끼를 땁니다.
+### [**POST**] [/getnukki/](http://dmumars.kro.kr:8080/getnukki/): 의류 이미지에 누끼를 땁니다.
 
 > 관리자 기능
 
@@ -172,7 +172,7 @@
 
 2. `ClothesMEA.py` 하단 `LIST_KEY_POINTS`에 측정 부위별 키포인트를 명시
 
-    > 측정 부위는 [해당링크](https://github.com/switchablenorms/DeepFashion2/blob/master/images/cls.jpg) 또는 테스트를 진행해서 조사
+    > 측정 부위는 [해당링크](http://github.com/switchablenorms/DeepFashion2/blob/master/images/cls.jpg) 또는 테스트를 진행해서 조사
 
     - 키 값은 `CustumTypes.py` 에 명시해둔 `maskKeyPointsType` 안에 포함된 값이여야 함
 
@@ -202,7 +202,7 @@
 
 ## 빌드 및 테스트
 
-### [모델파일 다운로드](https://huggingface.co/Seoksee/MY_MODEL_FILE/tree/main)
+### [모델파일 다운로드](http://huggingface.co/Seoksee/MY_MODEL_FILE/tree/main)
 
 -   `.gitattributes` 를 제외한 모든 파일을 `src/model`에 넣기
 
