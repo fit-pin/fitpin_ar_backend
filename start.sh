@@ -6,4 +6,4 @@ conda activate ./.conda
 conda env update -p .conda --prune
 
 # 서버 실행
-uvicorn src.Server:server --reload --port 8080 --host 0.0.0.0
+uvicorn src.Server:server --reload --port 8080 --host 0.0.0.0 --log-config ./log-config.yml
