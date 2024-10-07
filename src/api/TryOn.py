@@ -1,5 +1,6 @@
 # 의류 합성 이미지 생성 API
 import logging
+from typing import Literal
 
 from fastapi import APIRouter, Form, HTTPException, Request, Response, UploadFile
 
@@ -16,6 +17,7 @@ def tryOn(
     req: Request,
     humanImg: UploadFile,
     clothesImg: UploadFile,
+    category: Literal["상의", "하의", "드레스"] = Form(),
     is_checked: bool = Form(True),
     is_checked_crop: bool = Form(True),
     denoise_steps: int = Form(30),
@@ -38,6 +40,7 @@ def tryOn(
                     clothesImg.file.read(),
                     clothesImg.content_type,
                 ),
+                "category" : category,
                 "is_checked": str(is_checked),
                 "is_checked_crop": str(is_checked_crop),
                 "denoise_steps":  str(denoise_steps),

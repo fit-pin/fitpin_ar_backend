@@ -71,6 +71,12 @@
 
     -   humanImg: `File` - 체형사진 (바이너리)
     -   clothesImg: `File` - 의류사진 (바이너리)
+    -   category: `str` - 의류 종류 (아래 값만 허용)
+
+        ```text
+        상의 | 하의 | 드레스
+        ```
+        
     -   is_checked: `bool = 기본값(True)` - Use auto-generated mask 설정
     -   is_checked_crop: `bool = 기본값(True)` - 크롭 사용
     -   denoise_steps: `int = 기본값(30)` - 노이즈 재거 단계
