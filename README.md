@@ -69,8 +69,8 @@
     -   Content-Type: `multipart/form-data`
 -   `Body`
 
-    -   humanImg: `File` - 체형사진 (바이너리)
     -   clothesImg: `File` - 의류사진 (바이너리)
+    -   bodyFileName: `str` - AR 서버에 저장된 체형파일 명
     -   category: `str` - 의류 종류 (아래 값만 허용)
 
         ```text
