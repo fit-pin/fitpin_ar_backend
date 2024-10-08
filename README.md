@@ -76,7 +76,7 @@
         ```text
         상의 | 하의 | 드레스
         ```
-        
+
     -   is_checked: `bool = 기본값(True)` - Use auto-generated mask 설정
     -   is_checked_crop: `bool = 기본값(True)` - 크롭 사용
     -   denoise_steps: `int = 기본값(30)` - 노이즈 재거 단계
@@ -235,7 +235,6 @@ docker compose up
 ## 개발환경
 
 ### 개발 언어 및 프레임워크
-
 
 -   `Python 3.12.4`
 -   `FastAPI`
