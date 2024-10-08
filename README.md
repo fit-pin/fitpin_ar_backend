@@ -236,6 +236,7 @@ docker compose up
 
 ### 개발 언어 및 프레임워크
 
+
 -   `Python 3.12.4`
 -   `FastAPI`
 -   `Pytorch`
