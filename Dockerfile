@@ -43,7 +43,7 @@ wget --content-disposition -P ./src/model \
 https://huggingface.co/Seoksee/MY_MODEL_FILE/resolve/main/yolov8n-pose.pt?download=true
 
 # conda 가상환경 만들기
-RUN conda env create -p .conda && chmod +x start.sh
+RUN conda env create -p .conda
 
 # 컨테이너 시작시 start.sh 파일 실행
-CMD ["/bin/bash", "-c", "./start.sh"]
+CMD ["/bin/bash", "./start.sh"]
