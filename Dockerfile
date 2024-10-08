@@ -46,4 +46,4 @@ https://huggingface.co/Seoksee/MY_MODEL_FILE/resolve/main/yolov8n-pose.pt?downlo
 RUN conda env create -p .conda
 
 # 컨테이너 시작시 start.sh 파일 실행
-CMD ["/bin/bash", "./start.sh"]
+CMD ["/bin/bash", "start.sh"]
