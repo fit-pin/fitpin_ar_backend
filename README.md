@@ -4,9 +4,9 @@
 
 ## API 사용법
 
-**요청 메인 URL: `http://dmumars.kro.kr:8080`**
+**요청 메인 URL: `http://dmumars.kro.kr`**
 
-> 예시 /bodymea/ = http://dmumars.kro.kr:8080/bodymea/
+> 예시 /bodymea/ = http://dmumars.kro.kr/bodymea/
 
 -   모든 요청은 `multipart/form-data` 데이터로 요청합니다.
 -   요청시 반드시 URL 끝에 `/` 붙어야 합니다
@@ -14,11 +14,11 @@
     > http://localhost/bodymea (x) <br>
     > http://localhost/bodymea/ (o)
 
-**API 테스트 해보기**: http://dmumars.kro.kr:8080/docs
+**API 테스트 해보기**: http://dmumars.kro.kr/docs
 
 ## API 목록
 
-### [**POST**] [/bodymea/](http://dmumars.kro.kr:8080/bodymea/): 사진을 분석하여 체형을 측정 합니다
+### [**POST**] [/bodymea/](http://dmumars.kro.kr/bodymea/): 사진을 분석하여 체형을 측정 합니다
 
 #### 요청
 
@@ -59,7 +59,7 @@
     -   `keypoint_err`: 키포인트 검출실패
     -   `not_image`: 이미지가 아님
 
-### [**POST**] [/try-on/](http://dmumars.kro.kr:8080/try-on/): 채형 사진과 의류 이미지가 합성된 이미지를 리턴합니다.
+### [**POST**] [/try-on/](http://dmumars.kro.kr/try-on/): 채형 사진과 의류 이미지가 합성된 이미지를 리턴합니다.
 
 > 해당 API 요청은 [IDM-VTON-FastAPI](http://github.com/fit-pin/IDM-VTON-FastAPI) 서버로 리다이렉트 되어 요청을 처리합니다
 
@@ -100,7 +100,7 @@
 
     > 정의된 오류는 없음
 
-### [**POST**] [/clothesmea/](http://dmumars.kro.kr:8080/clothesmea): 오프라인 의류 측정을 진행합니다.
+### [**POST**] [/clothesmea/](http://dmumars.kro.kr/clothesmea/): 오프라인 의류 측정을 진행합니다.
 
 #### 요청
 
@@ -133,7 +133,7 @@
     -   `not_image`: 이미지가 아님
     -   `not_detection_card`: 사진에 카드를 감지하지 못함
 
-### [**POST**] [/getnukki/](http://dmumars.kro.kr:8080/getnukki/): 의류 이미지에 누끼를 땁니다.
+### [**POST**] [/getnukki/](http://dmumars.kro.kr/getnukki/): 의류 이미지에 누끼를 땁니다.
 
 > 관리자 기능
 
@@ -223,7 +223,7 @@
 2. 컨테이너 생성 & 실행
 
     ```bash
-    docker run -it --name fitpin -p 8080:8080 fitpin
+    docker run -it --name fitpin -p 80:80 fitpin
     ```
 
 ### Docker-Compose 사용
