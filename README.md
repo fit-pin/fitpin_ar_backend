@@ -218,12 +218,6 @@
 docker run -it --name fitpin -p 80:80 ghcr.io/fit-pin/fitpin-ar-backend
 ```
 
-### Docker-Compose 사용
-
-```bash
-docker compose up
-```
-
 ## 개발환경
 
 ### 개발 언어 및 프레임워크
@@ -232,4 +226,3 @@ docker compose up
 -   `FastAPI`
 -   `Pytorch`
 -   `OpenCV`
--   `Docker`
