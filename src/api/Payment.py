@@ -4,7 +4,7 @@ import logging
 from fastapi import APIRouter
 
 router = APIRouter()
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.requests import Request
 
 logger = logging.getLogger("uvicorn.error")
@@ -16,4 +16,6 @@ def payment(returnUrl: str, pg_token: str, req: Request):
     logger.info(f"{req.client.host}:{req.client.port} - 인증 토큰: {pg_token}")  # type: ignore
 
     # App scheme 으로 앱 실행 및 param 주기
-    return RedirectResponse(f"fitpin://open?state={returnUrl}&pg_token={pg_token}")
+    return HTMLResponse(
+        content=f"<script>location.replace('fitpin://open?state={returnUrl}&pg_token={pg_token}')</script>"
+    )
