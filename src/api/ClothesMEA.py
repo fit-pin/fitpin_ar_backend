@@ -57,14 +57,17 @@ def clothesMEAApi(
 
 
 class WorkClothesMEA:
-    FONT_SIZE = 6
+    FONT_SIZE = 9
     """폰트 크기"""
 
-    LINE_SIZE = 7
+    LINE_SIZE = 8
     """라인 크기"""
 
     POINT_SIZE = 15
     """점 크기 """
+    
+    FONT_PADDING = 150
+    """각 지점간 길이 텍스트 패딩 값"""
 
     TEXT_POSITION = (150, 150)
     """최대 텍스트 표시 거리 (x ,y)"""
@@ -188,7 +191,7 @@ class WorkClothesMEA:
                     )
 
         # 각각의 중점 좌표가 똑같은 경우 텍스트 겹침 현상을 해결하고자 만든 반복문
-        # 자신의 좌표가 centerPose에 저장된 값과 +- 100 이하면 +100 해주는 코드
+        # 자신의 좌표가 centerPose에 저장된 값과 +- FONT_PADDING 이하면 +FONT_PADDING 해주는 코드
         for i, part in enumerate(MEAData.keys()):
             strSize = f"{round(realDist_Dict[part], 2)}cm"
 
@@ -202,9 +205,9 @@ class WorkClothesMEA:
             # i값의 중점 y 좌표를 모든 좌표와 뺄샘 연산을 진행
             y_per = torch_abs(centerPose - centerPose[i][1])
 
-            # 모든 x, y 에 대해 100 이하인지를 저장하는 bool 마스크를 생성
-            mask_x = x_per < 100
-            mask_y = y_per < 100
+            # 모든 x, y 에 대해 FONT_PADDING 이하인지를 저장하는 bool 마스크를 생성
+            mask_x = x_per < WorkClothesMEA.FONT_PADDING
+            mask_y = y_per < WorkClothesMEA.FONT_PADDING
 
             # mask_x와 mask_y 에 대한 or 연산 진행 (x_per < 100 or y_per < 100) 이게 tenor 에서 안됨
             mask = mask_x.logical_or(mask_y)
@@ -217,7 +220,7 @@ class WorkClothesMEA:
 
             # 이게 or 로 두면 같은 x 좌표에 다른 y 값을 가진경우라도 통과할 수 있다
             if is_Overlap[0] and is_Overlap[1]:
-                centerPose[i] += 100
+                centerPose[i] += WorkClothesMEA.FONT_PADDING
 
             cul_points = centerPose[i]
 
