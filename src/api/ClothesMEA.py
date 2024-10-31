@@ -206,8 +206,8 @@ class WorkClothesMEA:
             y_per = torch_abs(centerPose - centerPose[i][1])
 
             # 모든 x, y 에 대해 FONT_PADDING 이하인지를 저장하는 bool 마스크를 생성
-            mask_x = x_per < WorkClothesMEA.FONT_PADDING
-            mask_y = y_per < WorkClothesMEA.FONT_PADDING
+            mask_x = x_per < 100
+            mask_y = y_per < 100
 
             # mask_x와 mask_y 에 대한 or 연산 진행 (x_per < 100 or y_per < 100) 이게 tenor 에서 안됨
             mask = mask_x.logical_or(mask_y)
@@ -218,7 +218,7 @@ class WorkClothesMEA:
             # 모든 x 좌표 또는 y 좌표에 True 가 있는지 판단
             is_Overlap = mask.any(dim=0)
 
-            # 이게 or 로 두면 같은 x 좌표에 다른 y 값을 가진경우라도 통과할 수 있다
+            # 이게 or 로 두면 같은 x 좌표에 다른 y 값을 가진경우라도 통과할  수있다
             if is_Overlap[0] and is_Overlap[1]:
                 centerPose[i] += WorkClothesMEA.FONT_PADDING
 
