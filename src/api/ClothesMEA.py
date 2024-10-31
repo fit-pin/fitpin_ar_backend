@@ -66,7 +66,7 @@ class WorkClothesMEA:
     POINT_SIZE = 15
     """점 크기 """
     
-    FONT_PADDING = 150
+    FONT_PADDING = 200
     """각 지점간 길이 텍스트 패딩 값"""
 
     TEXT_POSITION = (150, 150)
