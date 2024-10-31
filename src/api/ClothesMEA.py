@@ -57,7 +57,7 @@ def clothesMEAApi(
 
 
 class WorkClothesMEA:
-    FONT_SIZE = 9
+    FONT_SIZE = 10
     """폰트 크기"""
 
     LINE_SIZE = 8
@@ -191,7 +191,7 @@ class WorkClothesMEA:
                     )
 
         # 각각의 중점 좌표가 똑같은 경우 텍스트 겹침 현상을 해결하고자 만든 반복문
-        # 자신의 좌표가 centerPose에 저장된 값과 +- FONT_PADDING 이하면 +FONT_PADDING 해주는 코드
+        # 자신의 좌표가 centerPose에 저장된 값과 +- 100 이하면 +100 해주는 코드
         for i, part in enumerate(MEAData.keys()):
             strSize = f"{round(realDist_Dict[part], 2)}cm"
 
@@ -205,7 +205,7 @@ class WorkClothesMEA:
             # i값의 중점 y 좌표를 모든 좌표와 뺄샘 연산을 진행
             y_per = torch_abs(centerPose - centerPose[i][1])
 
-            # 모든 x, y 에 대해 FONT_PADDING 이하인지를 저장하는 bool 마스크를 생성
+            # 모든 x, y 에 대해 100 이하인지를 저장하는 bool 마스크를 생성
             mask_x = x_per < 100
             mask_y = y_per < 100
 
