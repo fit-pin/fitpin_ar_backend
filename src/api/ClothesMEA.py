@@ -65,12 +65,15 @@ class WorkClothesMEA:
 
     POINT_SIZE = 15
     """점 크기 """
-    
+
     FONT_PADDING = 200
     """각 지점간 길이 텍스트 패딩 값"""
 
     TEXT_POSITION = (150, 150)
     """최대 텍스트 표시 거리 (x ,y)"""
+
+    MARGIN_SIZE = 8
+    """길이 마진 값"""
 
     def __init__(
         self,
@@ -193,7 +196,7 @@ class WorkClothesMEA:
         # 각각의 중점 좌표가 똑같은 경우 텍스트 겹침 현상을 해결하고자 만든 반복문
         # 자신의 좌표가 centerPose에 저장된 값과 +- 100 이하면 +100 해주는 코드
         for i, part in enumerate(MEAData.keys()):
-            strSize = f"{round(realDist_Dict[part], 2)}cm"
+            strSize = f"{round(realDist_Dict[part]+WorkClothesMEA.MARGIN_SIZE, 2)}cm"
 
             # 텍스트 영역 제한하기
             self.__limitTextPosition(
