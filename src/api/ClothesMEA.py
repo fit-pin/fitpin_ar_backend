@@ -526,6 +526,14 @@ class WorkClothesMEA:
                 "총장": (0, 19),
             }
         ),
+        "반팔": dict[CustumTypes.TopKeyPointsType, tuple](
+            {
+                "어깨너비": (8, 26),
+                "가슴단면": (12, 21),
+                "소매길이": (26, 27, 28),
+                "총장": (0, 17),
+            }
+        ),
         # 긴팔 실측 키포인트
         "긴바지": dict[CustumTypes.BottomKeyPointsType, tuple](
             {
