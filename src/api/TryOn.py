@@ -56,6 +56,7 @@ def tryOn(
         res = reqPost(
             Constant.IDM_URL,
             data=mutiPartBody,
+            timeout=60,
             headers={"Content-Type": mutiPartBody.content_type},
         )
 
