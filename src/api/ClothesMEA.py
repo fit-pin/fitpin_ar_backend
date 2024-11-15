@@ -72,7 +72,7 @@ class WorkClothesMEA:
     TEXT_POSITION = (150, 150)
     """최대 텍스트 표시 거리 (x ,y)"""
 
-    MARGIN_SIZE = 8
+    MARGIN_SIZE = 5
     """길이 마진 값"""
 
     def __init__(
