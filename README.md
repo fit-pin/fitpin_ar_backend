@@ -1,4 +1,4 @@
-# fitpin_ar_backend
+# fitpin_backend_ar
 
 핏핀 AR 백엔드
 
