@@ -10,6 +10,7 @@ dependencies:
           - rembg==2.0.57
           - opencv-python==4.10.0.84
           - cvzone==1.6.1
+          - gradio-client==1.4.3
           - ultralytics
 
 prefix: fitpin_ar_backend
