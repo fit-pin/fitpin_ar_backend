@@ -61,7 +61,7 @@
 
 ### [**POST**] [/try-on/](https://fitpin.kro.kr/ar-api/try-on/): 채형 사진과 의류 이미지가 합성된 이미지를 리턴합니다.
 
-> 해당 API 요청은 [IDM-VTON-FastAPI](https://github.com/fit-pin/IDM-VTON-FastAPI) 서버로 리다이렉트 되어 요청을 처리합니다
+> 해당 API 요청은 [IDM-VTON-FastAPI](https://github.com/fit-pin/IDM-VTON-FastAPI) 서버, 또는 [Huggingface API](https://huggingface.co/spaces/yisol/IDM-VTON) 로 리다이렉트 되어 요청을 처리합니다
 
 #### 요청
 
